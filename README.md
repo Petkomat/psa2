@@ -1,2 +1,2 @@
-# psa2
-Podatkovne strukture in algoritmi 2
+# PSA2
+Koda, ki jo bomo proizvedli pri predmetu Podatkovne strukture in algoritmi 2
