@@ -1,0 +1,15 @@
+[
+    {
+        "directory": "C:\\Users\\matejp\\git\\psa2\\leto2223\\testno",
+        "arguments": [
+            "g++", 
+            "-fdiagnostics-color=always",
+            "-static-libstdc++",
+            "-g",
+            "helloworld.cpp",
+            "-o",
+            "helloworld.exe"
+        ],
+        "file": "helloworld.cpp" 
+    }
+  ]
