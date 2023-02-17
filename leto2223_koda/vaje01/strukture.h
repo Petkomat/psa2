@@ -45,13 +45,13 @@ public:
     */
     string toString(int zamik=0, char crkaTu=' ') const {
         // nekoc bom znal format
-        string nizZamik = string(zamik, ' ');
-        string deli = nizZamik + string(1, crkaTu) + ": " + (jeBeseda ? "beseda" : "-") + "\n";
+        auto nizZamik = string(zamik, ' ');
+        string deli = nizZamik + string(1, crkaTu) + " (int: " + std::to_string(crkaTu + 0) + "): " + (jeBeseda ? "beseda" : "-") + "\n";
         deli += nizZamik + "{";
         // nasledniki
         for(auto const& [crka, naslednik] : nasledniki){
             deli += "\n";
-            deli += naslednik.toString(zamik + 2, crka);
+            deli += naslednik.toString(zamik + 4, crka);
         }
         deli += (nasledniki.size() ? nizZamik : "") + "}\n";
         return deli;
@@ -62,6 +62,7 @@ public:
 class Trie {
 
     Vozlisce koren;
+    int steviloCrk = 0;  //  v resnici bajtov, ker je npr. č predstavljen z dvema
 
 public:
     Trie(){
@@ -86,10 +87,11 @@ public:
     }
 
     void vstavi(string const& beseda){
+        steviloCrk += beseda.size();
         Vozlisce* trenutnoPTR = &koren;
         // poskrbimo za nadaljevanja
         for (auto const& crka : beseda){
-            (*trenutnoPTR).nasledniki.try_emplace(crka /* emplacing a default constructed object */);
+            (*trenutnoPTR).nasledniki.try_emplace(crka /* emplacing a default constructed object - predlagal sonar */);
             trenutnoPTR = &(*trenutnoPTR).nasledniki.at(crka);
         }
         // na koncu označimo, da se je beseda tu končala
@@ -103,7 +105,6 @@ public:
             string vrstica;
             while(getline(datoteka, vrstica)){  // preberi vrstico in jo shrani v spremenljivko vrstica
                 vstavi(vrstica);
-                std::cout << vrstica << " je dolga " << vrstica.length()  << std::endl;
             }
             datoteka.close(); // zapri datoteko
         }
@@ -112,25 +113,38 @@ public:
     vector<string> nastejBesedeUrejeno() const{
         vector<string> besede;
         // dva sklada: vozlisca in pripadajoce delne besede
-        vector<Vozlisce> vozliscaTODO;
+        vector<const Vozlisce*> vozliscaTODO;
         vector<string> delneBesede;
         // na zacetku: koren in prazna beseda
-        vozliscaTODO.push_back(koren);
+        vozliscaTODO.push_back(&koren);
         delneBesede.emplace_back("");
         // DFS: najprej koren, potem po vrsti od leve proti desni
         while(! vozliscaTODO.empty()){
-            Vozlisce trenutno = vozliscaTODO.back();
+            const Vozlisce* trenutno = vozliscaTODO.back();
             vozliscaTODO.pop_back();
             string pripadajocaBeseda = delneBesede.back();
             delneBesede.pop_back();
-            if (trenutno.jeBeseda){
+            if ((*trenutno).jeBeseda){
                 besede.push_back(pripadajocaBeseda);
             }
             // na sklad je treba dati v obratnem abecednem redu
+            // pozor: čšž sta 2 bajta: 
+            // č: -60, -115
+            // š: -59, -95
+            // ž: -59, -67
+            // Ker imata š in ž isti prvi bajt, ureditev besed na koncu vseeno ni čisto prava:
+            // kneški bo prišel na vrsto za knez (ker -59 (del 'š') dodamo že pri 'ž')
+            // Rešitev za to: pogledati bi bilo treba še eno vozlišče naprej ...
+            bool dodal_minus59 = false;
             for (char crka : "žzvutšsrponmlkjihgfedčcba"){
-                if (trenutno.nasledniki.count(crka)){
-                    vozliscaTODO.push_back(trenutno.nasledniki.at(crka));
-                    delneBesede.push_back(pripadajocaBeseda + crka);
+                if (bool najDodam = (*trenutno).nasledniki.count(crka) && (crka != -59 || !dodal_minus59); 
+                    !najDodam){
+                    continue;
+                }
+                vozliscaTODO.push_back(&((*trenutno).nasledniki.at(crka)));
+                delneBesede.push_back(pripadajocaBeseda + crka);
+                if (crka == -59){
+                    dodal_minus59 = true;
                 }
             }
         }
@@ -139,5 +153,9 @@ public:
 
     string toString() const{
         return "Trie:\n" + koren.toString();
+    }
+
+    int getSteviloCrk() const{
+        return steviloCrk;
     }
 };

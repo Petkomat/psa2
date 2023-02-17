@@ -1,6 +1,6 @@
 [
     {
-        "directory": "C:\\Users\\matejp\\git\\psa2\\leto2223\\vaje01",
+        "directory": "C:\\Users\\matejp\\git\\psa2\\leto2223_koda\\vaje01",
         "arguments": [
             "g++", 
             "-fdiagnostics-color=always",
