@@ -22,16 +22,13 @@ using std::vector;
 class Vozlisce {
 
 public:
-    bool jeBeseda;
+    bool jeBeseda = false;
     // ker ne ppoznam dolžine v naprej, ne morem reči tega:
     // Vozlisce nasledniki[25]
 
+    // morda bi bilo lepše, če bi bili v map samo kazalci na 
+    // vozlisca (namesto dejanskih vozlisc)
     std::map<char, Vozlisce> nasledniki;
-
-    Vozlisce(){
-        jeBeseda = false;
-        // ker je nasledniki map, je že inicializiran na prazno
-    }
 
     /*
         Radi bi, da je toString(vozlisce) nekaj takega: 
@@ -46,7 +43,7 @@ public:
     string toString(int zamik=0, char crkaTu=' ') const {
         // nekoc bom znal format
         auto nizZamik = string(zamik, ' ');
-        string deli = nizZamik + string(1, crkaTu) + " (int: " + std::to_string(crkaTu + 0) + "): " + (jeBeseda ? "beseda" : "-") + "\n";
+        string deli = nizZamik + crkaTu + " (int: " + std::to_string((int) crkaTu) + "): " + (jeBeseda ? "beseda" : "-") + "\n";
         deli += nizZamik + "{";
         // nasledniki
         for(auto const& [crka, naslednik] : nasledniki){
@@ -91,11 +88,11 @@ public:
         Vozlisce* trenutnoPTR = &koren;
         // poskrbimo za nadaljevanja
         for (auto const& crka : beseda){
-            (*trenutnoPTR).nasledniki.try_emplace(crka /* emplacing a default constructed object - predlagal sonar */);
-            trenutnoPTR = &(*trenutnoPTR).nasledniki.at(crka);
+            trenutnoPTR -> nasledniki.try_emplace(crka);
+            trenutnoPTR = &(trenutnoPTR -> nasledniki.at(crka));
         }
         // na koncu označimo, da se je beseda tu končala
-        (*trenutnoPTR).jeBeseda = true;
+        trenutnoPTR -> jeBeseda = true;
     }
 
     void vstaviIzDatoteke(string const& pot){
@@ -107,6 +104,8 @@ public:
                 vstavi(vrstica);
             }
             datoteka.close(); // zapri datoteko
+        } else {
+            // opiši napako
         }
     }
 
@@ -136,7 +135,8 @@ public:
             // kneški bo prišel na vrsto za knez (ker -59 (del 'š') dodamo že pri 'ž')
             // Rešitev za to: pogledati bi bilo treba še eno vozlišče naprej ...
             bool dodal_minus59 = false;
-            for (char crka : "žzvutšsrponmlkjihgfedčcba"){
+            string abeceda = "žzvutšsrponmlkjihgfedčcba";
+            for (char crka : abeceda){
                 if (bool najDodam = (*trenutno).nasledniki.count(crka) && (crka != -59 || !dodal_minus59); 
                     !najDodam){
                     continue;

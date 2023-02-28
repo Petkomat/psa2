@@ -2,7 +2,9 @@
     "files.associations": {
         "xstring": "cpp",
         "vector": "cpp",
-        "fstream": "cpp"
+        "memory": "cpp",
+        "iostream": "cpp",
+        "chrono": "cpp"
     },
     "sonarlint.pathToCompileCommands": "${workspaceFolder}\\.vscode\\compile_commands.json"
 }

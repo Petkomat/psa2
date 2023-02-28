@@ -1,0 +1,15 @@
+[
+    {
+        "directory": "C:\\Users\\matejp\\git\\psa2\\leto2223_koda\\vaje03",
+        "arguments": [
+            "g++", 
+            "-fdiagnostics-color=always",
+            "-static-libstdc++",
+            "-g",
+            "main.cpp",
+            "-o",
+            "main.exe"
+        ],
+        "file": "main.cpp" 
+    }
+  ]
