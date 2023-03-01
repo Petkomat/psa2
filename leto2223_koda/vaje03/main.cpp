@@ -6,7 +6,8 @@
 #include "tabele.h"
 
 
-void shraniVektor(vector<long long> &trajanja, std::string pot) {
+
+void shraniVektor(std::vector<long long> const & trajanja, std::string const & pot) {
     std::ofstream fw(pot, std::ofstream::out);
     if (fw.is_open())
     {
@@ -20,8 +21,8 @@ void shraniVektor(vector<long long> &trajanja, std::string pot) {
 }
 
 
-void stopajIzvajanje(KonstantenPrirast tabela, std::string datoteka){
-    vector<long long> trajanja;
+void stopajIzvajanje(Tabela & tabela, const std::string & datoteka){
+    std::vector<long long> trajanja;
 
     // stopaj
     int n = 1e4;
@@ -40,6 +41,19 @@ void stopajIzvajanje(KonstantenPrirast tabela, std::string datoteka){
 
 int main()
 {
+    VgrajenaTabela t;
+    KonstantenPrirast tabelaK;
+    KonstantenFaktorPrirasta tabelaAlfa;
 
+    std::cout << tabelaK.izracunajNovoDolzino() << std::endl;
+    std::cout << tabelaAlfa.izracunajNovoDolzino() << std::endl;
+
+    VgrajenaTabela zaOgrevanje;
+    for (int i = 0; i < 1e8; i++){
+        zaOgrevanje.dodaj(i);
+    }
+    stopajIzvajanje(t, "casiVgrajena.txt");
+    stopajIzvajanje(tabelaK, "casiK.txt");
+    stopajIzvajanje(tabelaAlfa, "casiAlfa.txt");
     return 0;
 };
