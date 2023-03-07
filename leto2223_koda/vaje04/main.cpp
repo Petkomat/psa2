@@ -10,7 +10,7 @@ using std::vector;
 int main()
 {
     vector<vector<double>> xs;
-    int n = 10;
+    int n = 10000;
     int d = 2;
     std::default_random_engine re;
     std::uniform_real_distribution unif(0.0, 1.0);
@@ -21,12 +21,14 @@ int main()
         }
         xs.push_back(x);
     }
-    std::cout << "is this a real life " << xs.size() <<  std::endl;
 
     auto drevo = KDDrevo::narediDrevo(xs, 0);
+    
     for (auto const & x : xs){
         auto [optX, optR] = drevo -> najdi(x);
-        std::cout << optX[0] << " na razd. " << optR << std::endl;
+        if (optR > 0.0001){
+           std::cout << "upsi" << std::endl; 
+        }
     }
     return 0;
 }
