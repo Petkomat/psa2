@@ -13,10 +13,13 @@ class KDDrevo {
     int dimenzija;
     double mediana;
     vector<double> tocka;
-    std::unique_ptr<KDDrevo> levo = nullptr ; // brez kazalca ne moremo vedeti, koliko spomina porabi KDDrevo
-    std::unique_ptr<KDDrevo> desno = nullptr;
+    std::unique_ptr<KDDrevo> levo; // brez kazalca ne moremo vedeti, koliko spomina porabi KDDrevo
+    std::unique_ptr<KDDrevo> desno;
 
 public:
+    bool jePrazno = false;
+
+    KDDrevo();
     KDDrevo(const vector<vector<double>> & xs, const int dimenzija);
     ~KDDrevo();
 
@@ -33,7 +36,16 @@ public:
     static double izracunajEvklidsko2(const vector<double> & x0, const vector<double> & x1);
 
     static std::unique_ptr<KDDrevo> narediDrevo(const vector<vector<double>> & xs, const int dimenzija);
-   
+
+};
 
 
+class KDDSemidinamicno {
+    vector<std::unique_ptr<KDDrevo>> drevesa;
+
+public:
+    KDDSemidinamicno();
+
+    void vstavi(const vector<double> & x);
+    pair<vector<double>, double> najdi(const vector<double> & x) const;
 };

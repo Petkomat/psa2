@@ -1,19 +1,35 @@
 #include "kdd.h"
 #include <algorithm>
 #include <memory>
+#include <limits>
 
-// #include <vector>
-// #include <utility>
+
+// Ni treba (spet) vključiti vector-jev in utility-jev
 
 
 using std::vector;
 using std::pair;
+
+
+/*********************************************************************************************
+ * KD Drevo
+**********************************************************************************************/
+
+
+KDDrevo::KDDrevo()
+    : jePrazno(true)
+{
+    
+}
+
 
 KDDrevo::KDDrevo(const vector<vector<double>> & xs, const int dimenzija)
     : dimenzija(dimenzija), tocka(xs[0])
 {
     
 }
+
+
 
 std::unique_ptr<KDDrevo> KDDrevo::narediDrevo(const vector<vector<double>> & xs, const int dim){
     auto koren = std::make_unique<KDDrevo>(xs, dim);
@@ -51,10 +67,6 @@ pair<vector<double>, double> KDDrevo::najdi(const vector<double> & x) const {
     } else {
         return najdiPomoc(x, desno, levo);
     }
-    
-    vector<double> optX;
-    double optR;
-    return pair<vector<double>, double>(optX, optR);
 }
 
 
@@ -76,8 +88,18 @@ pair<vector<double>, double> KDDrevo::najdiPomoc(
 
 
 vector<vector<double>> KDDrevo::tocke() const {
-    vector<vector<double>> xs;
-    return xs;
+    vector<vector<double>> tocke;
+    if (jeList){
+        tocke.push_back(tocka);
+    } else {
+        for (auto const & t : levo -> tocke()){
+            tocke.push_back(t);
+        }
+        for (auto const & t : desno -> tocke()){
+            tocke.push_back(t);
+        }
+    }
+    return tocke;
 }
         
 // brez static
@@ -102,4 +124,55 @@ double KDDrevo::izracunajEvklidsko2(const vector<double> & x0, const vector<doub
         e += razlika * razlika;
     }
     return e;
+}
+
+
+
+/*********************************************************************************************
+ * KD Drevo: semidinamično 
+**********************************************************************************************/
+
+KDDSemidinamicno::KDDSemidinamicno() = default;
+
+
+void KDDSemidinamicno::vstavi(const vector<double> & x) {
+    auto mesto = (int) drevesa.size(); // v najslabsem primeru smo tukaj
+    vector<vector<double>> elementi {x};
+    // naberi vse
+    for (int i = 0; i < drevesa.size(); i++){
+        if (! drevesa[i] -> jePrazno){
+            mesto = i;
+            break;
+        }
+        // tu se dogaja veliko kopiranja
+        auto novi_elementi = drevesa[i] ->  tocke();
+        elementi.reserve(elementi.size() + novi_elementi.size());
+        elementi.insert(elementi.end(), novi_elementi.begin(), novi_elementi.end());
+    }
+    // novo drevo
+    auto novoDrevo = KDDrevo::narediDrevo(elementi, 0);
+    // pocisti prejsnja
+
+    for (int i = 0; i < mesto; i++){
+        drevesa[i] = nullptr;
+    }
+    // dodaj novo
+    if (mesto == drevesa.size()){
+        drevesa.push_back(std::move(novoDrevo));
+    } else{
+        drevesa.insert(drevesa.begin() + mesto, std::move(novoDrevo));
+    }
+}
+
+pair<vector<double>, double> KDDSemidinamicno::najdi(const vector<double> & x) const {
+    vector<double> optX;
+    double optR = std::numeric_limits<double>::infinity();
+    for (auto const & drevo : drevesa){
+        auto [optXTam, optRTam] = drevo -> najdi(x);
+        if (optRTam < optR){
+            optX = optXTam;
+            optR = optRTam;
+        }
+    }
+    return pair<vector<double>, double>(optX, optR);
 }
