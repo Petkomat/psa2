@@ -17,8 +17,6 @@ class KDDrevo {
     std::unique_ptr<KDDrevo> desno;
 
 public:
-    bool jePrazno = false;
-
     KDDrevo();
     KDDrevo(const vector<vector<double>> & xs, const int dimenzija);
     ~KDDrevo();

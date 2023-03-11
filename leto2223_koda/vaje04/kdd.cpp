@@ -16,11 +16,7 @@ using std::pair;
 **********************************************************************************************/
 
 
-KDDrevo::KDDrevo()
-    : jePrazno(true)
-{
-    
-}
+KDDrevo::KDDrevo() = default;
 
 
 KDDrevo::KDDrevo(const vector<vector<double>> & xs, const int dimenzija)
@@ -137,10 +133,10 @@ KDDSemidinamicno::KDDSemidinamicno() = default;
 
 void KDDSemidinamicno::vstavi(const vector<double> & x) {
     auto mesto = (int) drevesa.size(); // v najslabsem primeru smo tukaj
-    vector<vector<double>> elementi {x};
+    vector<vector<double>> elementi; elementi.push_back(x);
     // naberi vse
     for (int i = 0; i < drevesa.size(); i++){
-        if (! drevesa[i] -> jePrazno){
+        if (drevesa[i] == nullptr){
             mesto = i;
             break;
         }
@@ -149,18 +145,16 @@ void KDDSemidinamicno::vstavi(const vector<double> & x) {
         elementi.reserve(elementi.size() + novi_elementi.size());
         elementi.insert(elementi.end(), novi_elementi.begin(), novi_elementi.end());
     }
-    // novo drevo
-    auto novoDrevo = KDDrevo::narediDrevo(elementi, 0);
     // pocisti prejsnja
-
     for (int i = 0; i < mesto; i++){
         drevesa[i] = nullptr;
     }
     // dodaj novo
+    auto novoDrevo = KDDrevo::narediDrevo(elementi, 0);
     if (mesto == drevesa.size()){
         drevesa.push_back(std::move(novoDrevo));
     } else{
-        drevesa.insert(drevesa.begin() + mesto, std::move(novoDrevo));
+        drevesa[mesto] = std::move(novoDrevo);
     }
 }
 
@@ -168,6 +162,9 @@ pair<vector<double>, double> KDDSemidinamicno::najdi(const vector<double> & x) c
     vector<double> optX;
     double optR = std::numeric_limits<double>::infinity();
     for (auto const & drevo : drevesa){
+        if (drevo == nullptr){
+            continue;
+        }
         auto [optXTam, optRTam] = drevo -> najdi(x);
         if (optRTam < optR){
             optX = optXTam;

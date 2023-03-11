@@ -52,24 +52,28 @@ pair<vector<vector<double>>, vector<vector<double>>> testniPrimer(int nVstavi, i
 
 vector<vector<double>> najdiBrutResitve(const vector<vector<double>> & xsVstavi, const vector<vector<double>> & xsIsci){
     vector<vector<double>> resitve;
+    long long maxPrimerjav = 10001;
+    if (xsVstavi.size() * xsIsci.size() > maxPrimerjav){
+        std::cout << "Vračam prazne rešitve, preveč primerjav" << std::endl;
+        return resitve;
+    }
+    auto nVstavi = (int) xsVstavi.size();
+    for (int iIsci = 0; iIsci < xsIsci.size(); iIsci++){
+        auto const & x = xsIsci[iIsci];
+        int optI = 0;
+        double optR = std::numeric_limits<double>::infinity();
+        double r;
+        int meja = iIsci < nVstavi ? iIsci + 1 : nVstavi; // iVstavi <= iIsci, iVstavi < nVstavi 
+        for (int iVstavi = 0; iVstavi < meja; iVstavi++){
+            r = KDDrevo::izracunajEvklidsko2(xsVstavi[iVstavi], x);
+            if (r < optR){
+                optI = iVstavi;
+                optR = r;
+            }
+        }
+        resitve.push_back(xsVstavi[optI]);
+    }
     return resitve;
-    // auto nVstavi = (int) xsVstavi.size();
-    // for (int iIsci = 0; iIsci < xsIsci.size(); iIsci++){
-    //     auto const & x = xsIsci[iIsci];
-    //     int optI = 0;
-    //     double optR = std::numeric_limits<double>::infinity();
-    //     double r;
-    //     int meja = iIsci < nVstavi ? iIsci + 1 : nVstavi; // iVstavi <= iIsci, iVstavi < nVstavi 
-    //     for (int iVstavi = 0; iVstavi < meja; iVstavi++){
-    //         r = KDDrevo::izracunajEvklidsko2(xsVstavi[iVstavi], x);
-    //         if (r < optR){
-    //             optI = iVstavi;
-    //             optR = r;
-    //         }
-    //     }
-    //     resitve.push_back(xsVstavi[optI]);
-    // }
-    // return resitve;
 }
 
 
@@ -84,9 +88,8 @@ long long preizkusiSemidinamicno(const vector<vector<double>> & xsVstavi, const 
     KDDSemidinamicno gozd;
     //auto gozd = KDDrevo::narediDrevo(xsVstavi, 0);
     vector<double> sosed;
-    long long trajanje = 0;
+    auto t0 = std::chrono::high_resolution_clock::now();
     while (iVstavi < nVstavi || iIsci < nIsci){
-        auto t0 = std::chrono::high_resolution_clock::now();
         if (iVstavi < nVstavi){
             gozd.vstavi(xsVstavi[iVstavi]);
             iVstavi++;
@@ -95,16 +98,17 @@ long long preizkusiSemidinamicno(const vector<vector<double>> & xsVstavi, const 
             sosed = gozd.najdi(xsIsci[iIsci]).first;
             iIsci++;
         }
-        auto t1 = std::chrono::high_resolution_clock::now();
-        trajanje += (std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0)).count();
-        continue;
+        if (praviSosedje.empty()){
+            continue;
+        }
         if (iIsci <= nIsci && KDDrevo::izracunajEvklidsko2(sosed, praviSosedje[iIsci - 1]) > 1e-8){
             iIsci--;
             std::cout << "Nepravilen sosed pri poizvedbi " << iIsci << std::endl;
             return -1;
         }
     }
-    return trajanje;
+    auto t1 = std::chrono::high_resolution_clock::now();
+    return (std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0)).count();
 }
 
 void izpisiOdziv(long long t, int primer){
@@ -121,7 +125,12 @@ int main()
     int nVstavi = 1e4;
     int nIsci = 1e4;
     int d = 2;
-    
+
+    // test pravilnosti
+    auto [xsVstavi0, xsLeIsci0] = testniPrimer(100, 100, d, 0.0, true);
+    auto resitve0 = najdiBrutResitve(xsVstavi0, xsLeIsci0);
+    auto t0 = preizkusiSemidinamicno(xsVstavi0, xsLeIsci0, resitve0);
+    izpisiOdziv(t0, 0);
     // lahki podatki: vse random
     auto [xsVstavi1, xsLeIsci1] = testniPrimer(nVstavi, nIsci, d, 0.0, true);
     auto resitve1 = najdiBrutResitve(xsVstavi1, xsLeIsci1);
