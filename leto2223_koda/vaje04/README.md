@@ -17,7 +17,7 @@ Namesto časa enega iskanja narišemo povprečno vrednost zadnjih petih (zgladim
 
 Najprej prikažemo posamične čase.
 
-![posamični časi 2D](casi_po_en2D.PNG "posamični časi 2D")
+![posamični časi 2D](casi_po_en2D.png "posamični časi 2D")
 
 Težko je oceniti, ali je to res logaritemska rast, je pa jasno razvidno,
 da je prvi primer najlažji, tretji pa najtežji, ker so si tam razdalje zelo podobne.
@@ -27,18 +27,18 @@ približno enako oddaljene od številnih točk na diagonali, je drugi težji kot
 
 Za dobro mero še kumulativni grafi:
 
-![kumulativni časi 2D](casi_kumu2D.PNG "kumulativni časi 2D")
+![kumulativni časi 2D](casi_kumu2D.png "kumulativni časi 2D")
 
 # Rezultati v 10D
 
 Prostora v 10D je precej več: "volumen" 2D-kocke s stranico 2 je 4, volumen 10D kocke pa 1024.
 Zato zelo hitro točke nimajo bližnjih sosedov oz. so vsi sosedi še kar daleč stran.
 
-![posamični časi 10D](casi_po_en10D.PNG "posamični časi 10D")
+![posamični časi 10D](casi_po_en10D.png "posamični časi 10D")
 
 Vidimo, da so vsi primeri približno enako težki, kar potrdijo tudi skupni časi:
 
-![kumulativni časi 10D](casi_kumu10D.PNG "kumulativni časi 10D")
+![kumulativni časi 10D](casi_kumu10D.png "kumulativni časi 10D")
 
 
 ## Primerjava 2D in 10D
