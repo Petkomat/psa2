@@ -3,10 +3,27 @@
 #include <algorithm>
 #include <random>
 #include <chrono>
+#include <fstream>
+#include <string>
 #include "kdd.h"
 
 using std::vector;
 using std::pair;
+
+
+void shraniVektor(std::vector<long long> const & trajanja, std::string const & pot) {
+    std::ofstream fw(pot, std::ofstream::out);
+    if (fw.is_open())
+    {
+      for (auto const &element : trajanja) {
+        fw << element << "\n";
+      }
+      fw.close();
+    }   else {
+        std::cout << "Nisem mogel shraniti v " << pot << std::endl;
+    }
+}
+
 
 
 bool urediGledeNaPrvoKomponento (vector<double> x, vector<double> y) {
@@ -54,7 +71,7 @@ vector<vector<double>> najdiBrutResitve(const vector<vector<double>> & xsVstavi,
     vector<vector<double>> resitve;
     long long maxPrimerjav = 10001;
     if (xsVstavi.size() * xsIsci.size() > maxPrimerjav){
-        std::cout << "Vračam prazne rešitve, preveč primerjav" << std::endl;
+        std::cout << "Vracam prazne resitve, preveč primerjav" << std::endl;
         return resitve;
     }
     auto nVstavi = (int) xsVstavi.size();
@@ -80,22 +97,32 @@ vector<vector<double>> najdiBrutResitve(const vector<vector<double>> & xsVstavi,
 /*
 Vstavi, poisce, vstavi, poisce, ..., vstavi, poisce, potem pa samo se isce (ker je vec iskanj kot vstavljanj).
 */
-long long preizkusiSemidinamicno(const vector<vector<double>> & xsVstavi, const vector<vector<double>> & xsIsci, const vector<vector<double>> & praviSosedje){
+long long preizkusiSemidinamicno(
+    const vector<vector<double>> & xsVstavi, 
+    const vector<vector<double>> & xsIsci, 
+    const vector<vector<double>> & praviSosedje,
+    const std::string & datoRezultato
+    ){
     int nVstavi = xsVstavi.size();
     int nIsci = xsIsci.size();
     int iVstavi = 0;
     int iIsci = 0;
     KDDSemidinamicno gozd;
-    //auto gozd = KDDrevo::narediDrevo(xsVstavi, 0);
     vector<double> sosed;
+    vector<long long> posamicniCasiIskanj(nVstavi);
     auto t0 = std::chrono::high_resolution_clock::now();
+    auto tPosamicno0 = t0;
+    auto tPosamicno1= t0;
     while (iVstavi < nVstavi || iIsci < nIsci){
         if (iVstavi < nVstavi){
             gozd.vstavi(xsVstavi[iVstavi]);
             iVstavi++;
         }
         if (iIsci < nIsci){
+            tPosamicno0 = std::chrono::high_resolution_clock::now();
             sosed = gozd.najdi(xsIsci[iIsci]).first;
+            tPosamicno1 = std::chrono::high_resolution_clock::now();
+            posamicniCasiIskanj[iIsci] = (std::chrono::duration_cast<std::chrono::microseconds>(tPosamicno1 - tPosamicno0)).count();
             iIsci++;
         }
         if (praviSosedje.empty()){
@@ -108,6 +135,7 @@ long long preizkusiSemidinamicno(const vector<vector<double>> & xsVstavi, const 
         }
     }
     auto t1 = std::chrono::high_resolution_clock::now();
+    shraniVektor(posamicniCasiIskanj, datoRezultato);
     return (std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0)).count();
 }
 
@@ -115,7 +143,7 @@ void izpisiOdziv(long long t, int primer){
     if (t < 0){
         std::cout << "Neveljeven rezultat v primeru " << primer << std::endl;
     } else{
-        std::cout << "Čas [ms] za primer " << primer << ": " << t / 1000 << std::endl;
+        std::cout << "Trajanje [ms] za primer " << primer << ": " << t / 1000 << std::endl;
     }
 }
 
@@ -129,7 +157,7 @@ int main()
     // test pravilnosti
     auto [xsVstavi0, xsLeIsci0] = testniPrimer(100, 100, d, 0.0, true);
     auto resitve0 = najdiBrutResitve(xsVstavi0, xsLeIsci0);
-    auto t0 = preizkusiSemidinamicno(xsVstavi0, xsLeIsci0, resitve0);
+    auto t0 = preizkusiSemidinamicno(xsVstavi0, xsLeIsci0, resitve0, "test.txt");
     izpisiOdziv(t0, 0);
     // lahki podatki: vse random
     auto [xsVstavi1, xsLeIsci1] = testniPrimer(nVstavi, nIsci, d, 0.0, true);
@@ -141,11 +169,11 @@ int main()
     auto [xsVstavi3, xsLeIsci3] = testniPrimer(nVstavi, nIsci, d, 100.0, false);
     auto resitve3 = najdiBrutResitve(xsVstavi3, xsLeIsci3);
 
-    auto t1 = preizkusiSemidinamicno(xsVstavi1, xsLeIsci1, resitve1);
+    auto t1 = preizkusiSemidinamicno(xsVstavi1, xsLeIsci1, resitve1, "primer1_2.txt");
     izpisiOdziv(t1, 1);
-    auto t2 = preizkusiSemidinamicno(xsVstavi2, xsLeIsci2, resitve2);
+    auto t2 = preizkusiSemidinamicno(xsVstavi2, xsLeIsci2, resitve2, "primer2_2.txt");
     izpisiOdziv(t2, 2);
-    auto t3 = preizkusiSemidinamicno(xsVstavi3, xsLeIsci3, resitve3);
+    auto t3 = preizkusiSemidinamicno(xsVstavi3, xsLeIsci3, resitve3, "primer3_2.txt");
     izpisiOdziv(t3, 3);
     return 0;
 }
