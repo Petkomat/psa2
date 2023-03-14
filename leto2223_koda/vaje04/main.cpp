@@ -5,7 +5,10 @@
 #include <chrono>
 #include <fstream>
 #include <string>
+// Izberi eno od moznosti:
+// #include "semi.h"
 #include "kdd.h"
+// #include "jures_kdd.h"
 
 using std::vector;
 using std::pair;
@@ -107,7 +110,7 @@ long long preizkusiSemidinamicno(
     int nIsci = xsIsci.size();
     int iVstavi = 0;
     int iIsci = 0;
-    KDDSemidinamicno gozd;
+    KDDSemidinamicno gozd; // ce uvozis semi, je tu razred semi
     vector<double> sosed;
     vector<long long> posamicniCasiIskanj(nVstavi);
     auto t0 = std::chrono::high_resolution_clock::now();
@@ -169,11 +172,11 @@ int main()
     auto [xsVstavi3, xsLeIsci3] = testniPrimer(nVstavi, nIsci, d, 100.0, false);
     auto resitve3 = najdiBrutResitve(xsVstavi3, xsLeIsci3);
 
-    auto t1 = preizkusiSemidinamicno(xsVstavi1, xsLeIsci1, resitve1, "primer1_2.txt");
+    auto t1 = preizkusiSemidinamicno(xsVstavi1, xsLeIsci1, resitve1, "primer1_2jures.txt");
     izpisiOdziv(t1, 1);
-    auto t2 = preizkusiSemidinamicno(xsVstavi2, xsLeIsci2, resitve2, "primer2_2.txt");
+    auto t2 = preizkusiSemidinamicno(xsVstavi2, xsLeIsci2, resitve2, "primer2_2jures.txt");
     izpisiOdziv(t2, 2);
-    auto t3 = preizkusiSemidinamicno(xsVstavi3, xsLeIsci3, resitve3, "primer3_2.txt");
+    auto t3 = preizkusiSemidinamicno(xsVstavi3, xsLeIsci3, resitve3, "primer3_2jures.txt");
     izpisiOdziv(t3, 3);
     return 0;
 }
