@@ -7,6 +7,7 @@ class StatAlfaBeta:
         self.n_nodes = len(values)
         self.offset = offset
         self.nodes = [[alfa0, neutral_value] for _ in range(all_nodes)]
+        self.n_leaves = [0 for _ in self.nodes]
         for i, x in enumerate(values):
             self.nodes[i + offset][0] = x
         for i_this in range(len(self.nodes) - 1, -1, -1):
@@ -30,8 +31,7 @@ class StatAlfaBeta:
                 lines.append([])
         assert not lines[-1]
         lines.pop()
-        # curr_length + presl * (L - 1) <= width
-        # presl <=
+        # cca. curr_length + presl * L <= width
         for i in range(len(lines)):
             joiner = " " * ((width - sum(map(len, lines[i]))) // len(lines[i]))
             lines[i] = joiner.join(lines[i]).center(width, " ")
@@ -50,6 +50,8 @@ class StatAlfaBeta:
         return i + self.offset
 
     def n_leaves_in_subtree(self, i: int):
+        if self.n_leaves[i] > 0:
+            return self.n_leaves[i]
         i_left_leaf = i
         i_right_leaf = i
         # go left
@@ -60,7 +62,8 @@ class StatAlfaBeta:
             i_right_leaf = 2 * i_right_leaf + 1
             if i_right_leaf + 1 < len(self.nodes):
                 i_right_leaf += 1
-        return i_right_leaf - i_left_leaf + 1
+        self.n_leaves[i] = i_right_leaf - i_left_leaf + 1
+        return self.n_leaves[i]
 
     def is_internal(self, i: int):
         return 2 * i + 1 < len(self.nodes)
@@ -127,7 +130,7 @@ class SumOfRange(StatAlfaBeta):
 
     def get_paths_and_stuff(self, i: int, j: int):
         if not (0 <= i <= j < self.n_nodes):
-            raise ValueError(f"Not true that 0 <= {i} <= {j} <= {self.n_nodes}")
+            raise ValueError(f"Not true: 0 <= {i} <= {j} <= {self.n_nodes}")
         i_left = self.find_leaf(i)
         i_right = self.find_leaf(j)
         path_left = StatAlfaBeta.get_path_from_leaf(i_left)
@@ -166,7 +169,7 @@ class SumOfRange(StatAlfaBeta):
                 root = StatAlfaBeta.get_right(node)
                 update_with_internal = True
             elif i == 1 and StatAlfaBeta.get_left(node) != path[j - 1]:
-                # ... on right
+                # internal on right
                 root = StatAlfaBeta.get_left(node)
                 update_with_internal = True
             if update_with_internal:
@@ -259,10 +262,10 @@ class UnionSize(StatAlfaBeta):
 def test_sum_range():
     n = 100
     lst = list(range(n))
+    t = SumOfRange(lst)
+    b = SumOfRangeBrute(lst)
     for i in range(n):
         for j in range(i, n):
-            t = SumOfRange(lst)
-            b = SumOfRangeBrute(lst)
             t.increment(i, j, (i + 1) * (j + 1))
             b.increment(i, j, (i + 1) * (j + 1))
             if b.get_value(i, j) != t.get_value(i, j):

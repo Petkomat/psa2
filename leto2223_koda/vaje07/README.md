@@ -40,7 +40,17 @@ TODO :)
 
 ## Hakeljci
 
-Kar tečno za implementacijo. Psevdokoda za odgovore na poizvedbe je približno taka:
+Implementacijo si zelo olajšamo, če naredimo polno drevo, saj ima to nekaj prijetnih posledic:
+
+- vozlišča lahko hranimo v seznamu
+- vozlišče, ki je v seznamu vozlišč na mestu $i$, ima
+    - otroka na mestih $2i + 1$ in $2i + 2$
+    - starša na mestu $\lfloor \frac{i - 1}{2}\rfloor$
+- vsi listi so na isti globini
+- list, ki pripada indeksu $i$, najdemo v konstantnem času (ker vemo, koliko notranjih vozlišč je treba preskočiti)
+- ...
+
+Vseeno je vse skupaj kar tečno za implementacijo. Psevdokoda za odgovore na poizvedbe je približno taka:
 
 1. Naredi polno drevo, ki ima vsaj $n$ listov. Prvih $n$ listov napolni z vrednostmi $a_i$, preostale pa z nevtralnimi vrednostmi (srednje lahko).
 2. Najdi lista v drevesu, ki pripada indeksoma $i$ in $j$ (lahko), in njunega prvega skupnega prednika $p$. (lahko)
