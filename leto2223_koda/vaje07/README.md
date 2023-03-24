@@ -3,7 +3,7 @@
 Ogledali si bomo drevo, ki ga sestavimo iz seznama $s = [a_0, a_1, \dots, a_{n - 1}]$ in je namenjeno hitremu računanju poizvedb tipa
 
 1. vsota vrednosti $a_k$ za $i\leq k\leq j$ in
-2. vsota vrednosti $\unicode{x1D7D9}[a_i > 0]$ za $i\leq k\leq j$,
+2. vsota vrednosti $\unicode{x1D7D9}[a_k > 0]$ za $i\leq k\leq j$,
 
 pri čemer smo sposobni še hitrih posodobitev `dodaj(i, j, x)`, ki bi jih neučinkovito izvedli takole:
 
@@ -43,11 +43,11 @@ TODO :)
 Kar tečno za implementacijo. Psevdokoda za odgovore na poizvedbe je približno taka:
 
 1. Naredi polno drevo, ki ima vsaj $n$ listov. Prvih $n$ listov napolni z vrednostmi $a_i$, preostale pa z nevtralnimi vrednostmi (srednje lahko).
-1. Najdi lista v drevesu, ki pripada indeksoma $i$ in $j$ (lahko), in njunega prvega skupnega prednika $p$. (lahko)
-2. Najdi (levo) pot od lista za $i$ do $p$ in (desno) pot od lista za $j$ do $p$. (lahko)
-3. Postopoma računaj ločena odgovora vzdolž leve in desne poti od spodaj navzgor. (zelo tečno)
-4. Združi odgovora v skupnega in ga posodobi s pomočjo vrednosti $\alpha$ na poti od $p$ do korena. (tečno)
+2. Najdi lista v drevesu, ki pripada indeksoma $i$ in $j$ (lahko), in njunega prvega skupnega prednika $p$. (lahko)
+3. Najdi (levo) pot od lista za $i$ do $p$ in (desno) pot od lista za $j$ do $p$. (lahko)
+4. Postopoma računaj ločena odgovora vzdolž leve in desne poti od spodaj navzgor. (zelo tečno)
+5. Združi odgovora v skupnega in ga posodobi s pomočjo vrednosti $\alpha$ na poti od $p$ do korena. (tečno)
 
-Pri 3. in 4. je treba zelo paziti, da česa ne posodobimo dvakrat (npr. če je $i = j$ ali sta $i$ in $j$ otroka od $p$ ali ...) itd. itd.
+Pri 4. in 5. je treba zelo paziti, da česa ne posodobimo dvakrat (npr. če je $i = j$ ali sta $i$ in $j$ otroka od $p$ ali ...) itd. itd.
 
 
