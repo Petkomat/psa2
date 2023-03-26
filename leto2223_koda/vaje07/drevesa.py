@@ -46,6 +46,9 @@ class StatAlfaBeta:
     def get_value(self, i: int, j: int):
         raise NotImplementedError()
 
+    def get_value_along_path(self, i, path, value_left_right, n_nodes_left_right):
+        raise NotImplementedError()
+
     def get_paths_and_stuff(self, i: int, j: int):
         if not (0 <= i <= j < self.n_nodes):
             raise ValueError(f"Not true: 0 <= {i} <= {j} <= {self.n_nodes}")
@@ -91,14 +94,27 @@ class StatAlfaBeta:
             i_left_leaf = 2 * i_left_leaf + 1
         # go right if possible, else go left
         while 2 * i_right_leaf + 1 < len(self.nodes):
-            i_right_leaf = 2 * i_right_leaf + 1
-            if i_right_leaf + 1 < len(self.nodes):
-                i_right_leaf += 1
+            i_right_leaf = StatAlfaBeta.get_right(i_right_leaf)
         self.n_leaves[i] = i_right_leaf - i_left_leaf + 1
         return self.n_leaves[i]
 
     def is_internal(self, i: int):
         return 2 * i + 1 < len(self.nodes)
+
+    def get_value_along_paths(self, i, j):
+        i_left, i_right, path_left, path_right, i_common, below_common = self.get_paths_and_stuff(i, j)
+        if i_left == i_right:
+            final_value = 0  # add alpha later
+        elif StatAlfaBeta.get_parent(i_left) == StatAlfaBeta.get_parent(i_right):
+            final_value = self.nodes[i_left][1] + self.nodes[i_right][1]
+        else:
+            n_nodes_left_right = [0, 0]
+            value_left_right = [0, 0]
+            for i, path in enumerate(below_common):
+                self.get_value_along_path(i, path, value_left_right, n_nodes_left_right)
+            final_value = sum(value_left_right)
+        n_nodes = i_right - i_left + 1
+        return final_value, n_nodes, i_common
 
     @staticmethod
     def should_update_with_internal(i, path, j, node):
@@ -192,20 +208,7 @@ class SumOfRange(StatAlfaBeta):
             self.nodes[i][1] = self.nodes[i][0]
 
     def get_value(self, i: int, j: int):
-        i_left, i_right, path_left, path_right, i_common, below_common = self.get_paths_and_stuff(i, j)
-        if i_left == i_right:
-            final_value = 0  # add alpha later
-            n_nodes = 1
-        elif StatAlfaBeta.get_parent(i_left) == StatAlfaBeta.get_parent(i_right):
-            final_value = self.nodes[i_left][1] + self.nodes[i_right][1]
-            n_nodes = 2
-        else:
-            n_nodes_left_right = [0, 0]
-            value_left_right = [0, 0]
-            for i, path in enumerate(below_common):
-                self.get_value_along_path(i, path, value_left_right, n_nodes_left_right)
-            final_value = sum(value_left_right)
-            n_nodes = sum(n_nodes_left_right)
+        final_value, n_nodes, i_common = self.get_value_along_paths(i, j)
         while i_common >= 0:
             final_value += self.nodes[i_common][0] * n_nodes
             i_common = StatAlfaBeta.get_parent(i_common)
@@ -238,36 +241,17 @@ class SumOfRangeBrute:
 
 class UnionSize(StatAlfaBeta):
     def update_beta(self, i: int):
-        if not self.is_internal(i):
-            self.nodes[i][1] = self.nodes[i][0]
-        elif self.nodes[i][0] > 0:
+        if self.nodes[i][0] > 0:
             self.nodes[i][1] = self.n_leaves_in_subtree(i)
+        elif not self.is_internal(i):
+            self.nodes[i][1] = 0
         else:
             l_beta = self.nodes[StatAlfaBeta.get_left(i)][1]
             r_beta = self.nodes[StatAlfaBeta.get_right(i)][1]
             self.nodes[i][1] = l_beta + r_beta
 
     def get_value(self, i: int, j: int):
-        """
-        Until the while loop, it is the same as in the SumOfRange case.
-        :param i:
-        :param j:
-        :return:
-        """
-        i_left, i_right, path_left, path_right, i_common, below_common = self.get_paths_and_stuff(i, j)
-        if i_left == i_right:
-            final_value = 0
-            n_nodes = 1
-        elif StatAlfaBeta.get_parent(i_left) == StatAlfaBeta.get_parent(i_right):
-            final_value = self.nodes[i_left][1] + self.nodes[i_right][1]
-            n_nodes = 2
-        else:
-            n_nodes_left_right = [0, 0]
-            value_left_right = [0, 0]
-            for i, path in enumerate(below_common):
-                self.get_value_along_path(i, path, value_left_right, n_nodes_left_right)
-            final_value = sum(value_left_right)
-            n_nodes = sum(n_nodes_left_right)
+        final_value, n_nodes, i_common = self.get_value_along_paths(i, j)
         while i_common >= 0:
             if self.nodes[i_common][0] > 0:
                 return n_nodes  # won't change any more
@@ -327,7 +311,7 @@ def test_union_size():
     """
     random.seed(1234)
     for n in range(27, 34):
-        lst = list(range(n))
+        lst = [0 for _ in range(n)]
         t = UnionSize(lst)
         b = UnionSize(lst)
         intervals = [(i, j) for _ in range(3) for i in range(n) for j in range(i, n)]
