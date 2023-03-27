@@ -6,6 +6,7 @@
 #include <utility>
 #include <numeric>  // std::iota
 #include "sip.h"
+#include "parkirisce.h"
 
 
 using std::vector;
@@ -106,4 +107,7 @@ int main()
 {
     preveri_vsote();
     preveri_unije();
+
+    vector<tuple<int, int, int, int>> pravokotniki {std::make_tuple(0, 0, 2, 2), std::make_tuple(1, 1, 3, 3)};
+    cout << "Ploscina nadzorovanega dela: " << ploscina(pravokotniki) << endl;
 }
