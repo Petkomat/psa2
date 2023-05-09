@@ -39,7 +39,7 @@ Najprej si poglejmo čase vstavljanj, nato pa še poizvedb.
 
 Na grafih je več kot ena črta za vsako strukturo, ker smo lenobno vsak poskus ponovili pri različnih vrednostih $\sigma$ (kar sicer na čase vstavljanj ne more vplivati).
 
-### Poizvedb
+### Poizvedbe
 
 Na čas poizvedb vplivata tako način vstavljanja (zaradi končne oblike strukture) kot tudi vrstni red poizvedb (pri lomljenih drevesih je to očitno, pri vseh strukturah pa računalniku tudi ustreza, da brskamo po podobnih kosih spomina).
 
