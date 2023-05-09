@@ -20,7 +20,7 @@ Zato je vrstni red dostopov 1, 1, 2, 1, 2, 2, 3, 3, 3, ... bolj realen kot čist
 
  Vrstni red dostopov smo dobili tako, da smo najprej dobili čase dostopov do novic: časi dostopov do novice $i$ so bili porazdeljeni normalno $\mathcal{N}(i,\sigma)$ (nismo se zapletali z morda še primernejšimi porazdelitvami). Obravnavali smo različne stopnje razpršenosti (in posledično število popularnih novic ob danem času):
 
-$\sigma \in\{0.1, 1.0, 10, 100, \infty \}$
+$\sigma \in\\{0.1, 1.0, 10, 100, \infty \\}$
 
 Vrednost $\sigma =\infty$ smo simulirali z enakomerno naključno porazdelitvijo na intervalu $[0, 1]$, saj nas zanima le vrstni red dostopov.
 
